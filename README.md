@@ -1,1 +1,1 @@
-Demo Web site visit => rusorestcountries.netlify.appp/
+Demo Web site visit => https://rusorestcountries.netlify.app/
