@@ -12,6 +12,7 @@ async function getData() {
       });
     });
 }
+
 getData();
 
 const fillData = (element) => {
@@ -20,11 +21,13 @@ const fillData = (element) => {
   let countryName = document.createElement("h2");
   countryName.innerHTML = element.name.common;
   let population = document.createElement("p");
-  population.innerHTML = `Population: ${element.population}`;
+  population.innerHTML = `<b>Population:</b> ${element.population}`;
   let region = document.createElement("p");
-  region.innerHTML = `Region: ${element.region}`;
+  region.innerHTML = `<b>Region:</b> ${element.region}`;
   let capital = document.createElement("p");
-  capital.innerHTML = `Capital: ${element.capital ? element.capital[0] : "No"}`;
+  capital.innerHTML = `<b>Capital</b>: ${
+    element.capital ? element.capital[0] : "No Capital"
+  }`;
   let cardDetails = document.createElement("div");
   cardDetails.classList.add("card-details");
   cardDetails.appendChild(countryImg);
@@ -32,11 +35,16 @@ const fillData = (element) => {
   cardDetails.appendChild(population);
   cardDetails.appendChild(region);
   cardDetails.appendChild(capital);
+  cardDetails.setAttribute("name", element.name.common);
   card.appendChild(cardDetails);
 };
 
-search.addEventListener("keyup", () => {
+search.addEventListener("keyup", (e) => {
   filterByName();
+});
+
+select.addEventListener("change", (e) => {
+  filterByRegion(e.target.value);
 });
 
 const filterByName = () => {
@@ -48,7 +56,14 @@ const filterByName = () => {
       .then((data) => {
         card.innerHTML = "";
         data.forEach((e) => {
-          fillData(e);
+          if (select.value) {
+            if (e.region.includes(select.value)) {
+              fillData(e);
+            }
+          }
+          if (select.value == "All") {
+            fillData(e);
+          }
         });
       })
       .catch(() => {
@@ -67,7 +82,6 @@ async function getRegions() {
     .then((data) => {
       regionArr = data;
     });
-
   return regionArr;
 }
 
@@ -90,10 +104,6 @@ function fillOptions() {
 
 fillOptions();
 
-select.addEventListener("change", (e) => {
-  filterByRegion(e.target.value);
-});
-
 const filterByRegion = (region) => {
   if (region == "All") {
     card.innerHTML = "";
@@ -103,7 +113,22 @@ const filterByRegion = (region) => {
       .then((res) => res.json())
       .then((data) => {
         card.innerHTML = "";
-        data.forEach((e) => fillData(e));
+        data.forEach((e) => {
+          if (search.value) {
+            if (e.name.common.toLowerCase().includes(search.value)) {
+              fillData(e);
+            }
+          } else {
+            fillData(e);
+          }
+        });
       });
   }
 };
+
+card.addEventListener("click", (e) => {
+  if (e.path[1].getAttribute("name")) {
+    localStorage.setItem("name", e.path[1].getAttribute("name"));
+    window.location.href = "details.html";
+  }
+});
